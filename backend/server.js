@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -10,12 +11,19 @@ const uri = process.env.MONGODB_URI;
 const dbName = 'autoBodyShop';
 
 // Serve React app from frontend/build
-app.use(express.static(path.join(__dirname, 'frontend', 'build')));
+app.use(express.static('frontend/build'));
 app.use(express.json());
 
+
 // Connect to MongoDB
+if(!uri) {
+  console.error('Error: MONGO_URI is not defined in .env');
+  process.exit(1);
+}
 mongoose.connect(uri, {
-  dbName
+  dbName,
+  ssl: true,
+  serverSelectionTimeoutMS: 15000
 }).then(() => {
   console.log('Connected to MongoDB');
 }).catch((error) => {
@@ -26,9 +34,10 @@ mongoose.connect(uri, {
 app.use('/api/estimates', estimateRoutes);
 app.use('/api/before-after', beforeAfterRoutes);
 
+
 // Serve React app for all routes
 // app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'frontend', 'build'));
+//   res.sendFile(`${__dirname}\\frontend\\build\\index.html`);
 // });
 
 const PORT = process.env.PORT || 5000;

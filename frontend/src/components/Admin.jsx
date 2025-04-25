@@ -1,100 +1,95 @@
 import { useState } from 'react';
+import { storage } from '../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import axios from 'axios';
 
-function Admin() {
+const Admin = () => {
   const [beforeImage, setBeforeImage] = useState(null);
   const [afterImage, setAfterImage] = useState(null);
   const [description, setDescription] = useState('');
-  const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!beforeImage || !afterImage || !description) {
-      setMessage('Please provide both images and a description.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('beforeImage', beforeImage);
-    formData.append('afterImage', afterImage);
-    formData.append('description', description);
+    setUploading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/before-after', {
-        method: 'POST',
-        body: formData
+      // Upload Before Image
+      const beforeImageRef = ref(storage, `before-after/before-${Date.now()}-${beforeImage.name}`);
+      await uploadBytes(beforeImageRef, beforeImage);
+      const beforeImageUrl = await getDownloadURL(beforeImageRef);
+
+      // Upload After Image
+      const afterImageRef = ref(storage, `before-after/after-${Date.now()}-${afterImage.name}`);
+      await uploadBytes(afterImageRef, afterImage);
+      const afterImageUrl = await getDownloadURL(afterImageRef);
+
+      // Send URLs and description to backend
+      await axios.post('/api/before-after', {
+        beforeImage: beforeImageUrl,
+        afterImage: afterImageUrl,
+        description
       });
-      const result = await response.json();
-      if (response.ok) {
-        setMessage('Images uploaded successfully!');
-        setBeforeImage(null);
-        setAfterImage(null);
-        setDescription('');
-        document.getElementById('beforeImage').value = '';
-        document.getElementById('afterImage').value = '';
-      } else {
-        setMessage(result.message || 'Failed to upload images.');
-      }
-    } catch (error) {
-      setMessage('An error occurred. Please try again.');
+
+      alert('Images uploaded successfully');
+      setBeforeImage(null);
+      setAfterImage(null);
+      setDescription('');
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Failed to upload images');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <section className="min-h-screen bg-gray-100 py-20 px-6">
-      <div className="container mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
-          Upload Before & After Images
-        </h2>
-        <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Before Image</label>
-              <input
-                id="beforeImage"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setBeforeImage(e.target.files[0])}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">After Image</label>
-              <input
-                id="afterImage"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setAfterImage(e.target.files[0])}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">Description</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="5"
-                required
-              ></textarea>
-            </div>
-            {message && (
-              <p className={`text-center mb-6 ${message.includes('Failed') || message.includes('error') ? 'text-red-600' : 'text-green-600'}`}>
-                {message}
-              </p>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-md hover:bg-blue-700 transition-transform transform hover:scale-105"
-            >
-              Upload
-            </button>
-          </form>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Upload Before & After Images</h2>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Before Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setBeforeImage(e.target.files[0])}
+            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            required
+          />
         </div>
-      </div>
-    </section>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">After Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAfterImage(e.target.files[0])}
+            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            placeholder="Enter description"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={uploading}
+          className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {uploading ? 'Uploading...' : 'Upload Images'}
+        </button>
+      </form>
+    </div>
   );
-}
+};
 
 export default Admin;
