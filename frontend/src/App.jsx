@@ -6,9 +6,8 @@ import EstimateForm from './components/EstimateForm';
 import Advice from './components/Advice';
 import Footer from './components/Footer';
 import Admin from './components/Admin';
+import Services from './components/Services';
 
-// Debug imports
-console.log({ Navbar, Home, BeforeAfter, EstimateForm, Advice, Footer, Admin });
 
 function App() {
   return (
@@ -23,6 +22,7 @@ function App() {
                 <>
                   <Home />
                   <BeforeAfter />
+                  <Services />
                   <EstimateForm />
                   <Advice />
                 </>

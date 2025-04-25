@@ -25,7 +25,10 @@ const estimateSchema = new mongoose.Schema({
     required: true,
     minlength: 1
   },
-  imageUrls:[{ type: String }],
+  imageUrls: {
+    type: [String], 
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now

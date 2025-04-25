@@ -10,6 +10,7 @@ function Navbar() {
         <div className="space-x-6 flex items-center">
           <Link to="/" className="text-lg font-medium hover:text-orange-500 transition-colors">Home</Link>
           <a href="/#before-after" className="text-lg font-medium hover:text-orange-500 transition-colors">Before & After</a>
+          <a href="/#services" className="text-lg font-medium hover:text-orange-500 transition-colors">Services</a>
           <a href="/#estimate" className="text-lg font-medium hover:text-orange-500 transition-colors">Get Estimate</a>
           <a href="/#advice" className="text-lg font-medium hover:text-orange-500 transition-colors">Advice</a>
           <Link to="/admin" className="text-lg font-medium bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors">Admin</Link>

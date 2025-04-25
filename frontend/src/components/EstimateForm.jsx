@@ -38,11 +38,7 @@ function EstimateForm() {
         imageUrl: urls
       };
 
-      const response = await axios.post('/api/estimates', {
-        headers: {
-          'Content-Type': 'application/json' 
-        }
-      });
+      const response = await axios.post('http://localhost:5000/api/estimates', payload);
       if (response.ok) {
         setMessage('Estimate request submitted successfully!');
         setFormData({ name: '', email: '', phone: '', vehicle: '', damage: '' });
