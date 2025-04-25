@@ -28,26 +28,52 @@ function BeforeAfter() {
           Before & After
         </h2>
         {error && <p className="text-center text-red-600 mb-8">{error}</p>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="space-y-10">
           {imagePairs.map((pair) => (
             <div
               key={pair._id}
-              className="bg-gray-50 rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105"
+              className="bg-gray-50 rounded-lg shadow-md p-4 flex flex-col gap-4"
             >
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">Before</h3>
-                <img
-                  src={pair.beforeImage}
-                  alt={`Before ${pair.description}`}
-                  className="w-full h-64 object-cover rounded-md mb-6"
-                />
-                <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">After</h3>
-                <img
-                  src={pair.afterImage}
-                  alt={`After ${pair.description}`}
-                  className="w-full h-64 object-cover rounded-md"
-                />
-                <p className="mt-6 text-gray-600 text-center">{pair.description}</p>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+                {/* Before Images */}
+                <div className="flex flex-col items-center w-full sm:w-1/3">
+                  <h4 className="text-lg font-medium mb-2">Before</h4>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {pair.beforeImages.map((imgUrl, index) => (
+                      <img
+                        key={index}
+                        src={imgUrl}
+                        alt={`Before ${pair.description}`}
+                        className="w-70 h-70 object-cover rounded-md"
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="text-2xl text-gray-500 mx-2 sm:mx-4 flex justify-center items-center">
+                  ➜
+                </div>
+
+                {/* After Images */}
+                <div className="flex flex-col items-center w-full sm:w-1/3">
+                  <h4 className="text-lg font-medium mb-2">After</h4>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {pair.afterImages.map((imgUrl, index) => (
+                      <img
+                        key={index}
+                        src={imgUrl}
+                        alt={`After ${pair.description}`}
+                        className="w-70 h-70 object-cover rounded-md"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="w-full mt-4 text-center text-gray-600 font-medium">
+                {pair.title} - {pair.description}
               </div>
             </div>
           ))}

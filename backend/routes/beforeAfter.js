@@ -9,10 +9,6 @@ router.post('/upload', async(req, res) => {
   try {
     const { title, description, beforeImages, afterImages } = req.body;
 
-    console.log("reques title is:", title )
-    console.log("before Image:", beforeImages)
-    console.log("after Image:", afterImages)
-
     const newEntry = new BeforeAfter({
       title,
       description,
