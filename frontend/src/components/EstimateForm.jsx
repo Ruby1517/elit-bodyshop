@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import app  from '../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
+import axios from 'axios';
 
 function EstimateForm() {
   const [formData, setFormData] = useState({
@@ -6,8 +9,7 @@ function EstimateForm() {
     email: '',
     phone: '',
     vehicle: '',
-    damage: '',
-    file: []
+    damage: ''
   });
   const [message, setMessage] = useState('');
   const [images, setImages] = useState([]);
@@ -22,28 +24,33 @@ function EstimateForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    for (let key in formData) {
-      data.append(key, formData[key]);
-    }
-    images.forEach((file, index) => {
-      data.append('images', file);
-    });
-
     try {
-      const response = await fetch('/api/estimates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+      const urls = [];
+      for (const file of images) {
+        const imageRef = ref(Storage, `estimate/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(imageRef, file)
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        urls.push(downloadURL);
+      }
+
+      const payload = {
+        ...formData,
+        imageUrl: urls
+      };
+
+      const response = await axios.post('/api/estimates', {
+        headers: {
+          'Content-Type': 'application/json' 
+        }
       });
-      const result = await response.json();
       if (response.ok) {
-        setMessage('Estimate request submitted! We will contact you soon.');
+        setMessage('Estimate request submitted successfully!');
         setFormData({ name: '', email: '', phone: '', vehicle: '', damage: '' });
-        setImages([])
+        setImages([]);
       } else {
         setMessage('Failed to submit estimate. Please try again.');
       }
+     
     } catch (error) {
       setMessage('An error occurred. Please try again later.');
     }
