@@ -4,13 +4,25 @@ const mongoose = require('mongoose');
 const path = require('path');
 const estimateRoutes = require('./routes/estimates');
 const beforeAfterRoutes = require('./routes/beforeAfter');
+const authRoutes = require('./routes/auth');
 
 const app = express();
+const cors = require('cors');
+
 
 const uri = process.env.MONGODB_URI; 
 const dbName = 'autoBodyShop';
 
 // Serve React app from frontend/build
+app.use(cors(
+  [
+    {
+      "origin": ["http://localhost:3000"],
+      "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+));
 app.use(express.static('frontend/build'));
 app.use(express.json());
 
@@ -33,6 +45,7 @@ mongoose.connect(uri, {
 // Routes
 app.use('/api/estimates', estimateRoutes);
 app.use('/api/before-after', beforeAfterRoutes);
+app.use('/api/auth', authRoutes);
 
 
 // Serve React app for all routes
@@ -40,7 +53,7 @@ app.use('/api/before-after', beforeAfterRoutes);
 //   res.sendFile(`${__dirname}\\frontend\\build\\index.html`);
 // });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`Backend server is running on http://localhost:${process.env.PORT}`)
+})

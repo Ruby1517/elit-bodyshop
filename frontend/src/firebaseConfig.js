@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+const analytics = getAnalytics(app);
 
-export { storage };
+export default app;
 

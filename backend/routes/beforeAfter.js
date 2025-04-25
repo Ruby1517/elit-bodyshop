@@ -1,29 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const BeforeAfter = require('../models/BeforeAfter');
+const BeforeAfter = require('../models/BeforeAfter.js');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const upload = require('../middleware/upload.js');
 
-router.post('/', async (req, res) => {
+// Upload before and after photos
+router.post('/upload', async(req, res) => {
   try {
-    const { beforeImage, afterImage, description } = req.body;
+    const { title, description, beforeImages, afterImages } = req.body;
 
-    // Validate input
-    if (!beforeImage || !afterImage) {
-      return res.status(400).json({ message: 'Before and after image URLs are required' });
-    }
+    console.log("reques title is:", title )
+    console.log("before Image:", beforeImages)
+    console.log("after Image:", afterImages)
 
-    // Save to MongoDB
-    const beforeAfter = new BeforeAfter({
-      beforeImage,
-      afterImage,
-      description
+    const newEntry = new BeforeAfter({
+      title,
+      description,
+      beforeImages,
+      afterImages
     });
-    await beforeAfter.save();
+    await newEntry.save();
+    res.status(200).json({ message: 'Saved Successfully' })
 
-    res.status(201).json({ message: 'Images saved successfully', beforeAfter });
-  } catch (error) {
-    console.error('Error saving images:', error);
-    res.status(500).json({ message: 'Failed to save images' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+
 });
 
 router.get('/', async (req, res) => {
@@ -37,3 +39,4 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+
