@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ReactPlayer from 'react-player';
 
-function BeforeAfter() {
+function Gallery() {
   const [imagePairs, setImagePairs] = useState([]);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedMedia, setSelectedMedia] = useState(null);
 
   useEffect(() => {
     const fetchImagePairs = async () => {
@@ -26,42 +21,30 @@ function BeforeAfter() {
     fetchImagePairs();
   }, []);
 
-  // Helper to decide if a URL is a video
   const isVideo = (url) => {
     return url.includes('.mp4') || url.includes('.webm') || url.includes('.ogg') || url.includes('.mov') || url.includes('.avi');
   };
 
-  const handleMediaClick = (media) => {
-    setSelectedMedia(media);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedMedia(null);
-  };
-
   return (
-    <section id="before-after" data-aos="zoom-in" className="py-20 px-6 bg-white">
+    <section className="py-20 px-6 bg-white">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
-          Before & After
+          Gallery - Before & After
         </h2>
         {error && <p className="text-center text-red-600 mb-8">{error}</p>}
         <div className="space-y-10">
-          {imagePairs.slice(0, 3).map((pair) => (
+          {imagePairs.map((pair) => (
             <div
               key={pair._id}
               className="bg-gray-50 rounded-lg shadow-md p-4 flex flex-col gap-4"
             >
+              {/* Same layout as BeforeAfter */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
-                {/* Before Images */}
                 <div className="flex flex-col items-center w-full sm:w-1/3">
                   <h4 className="text-lg font-medium mb-2">Before</h4>
                   <div className="flex flex-wrap gap-2 justify-center">
                   {pair.beforeMedia.map((url, index) => {
                     if (isVideo(url)) {
-                      console.log('Video URL:', url);
                       return (
                         <video
                           key={index}
@@ -69,7 +52,6 @@ function BeforeAfter() {
                           width="300"
                           height="300"
                           className="object-cover rounded-md"
-                          onClick={() => handleMediaClick(url)}
                         >
                           <source src={url} type="video/mp4" />
                           Your browser does not support the video tag.
@@ -77,35 +59,27 @@ function BeforeAfter() {
                       );
                     } else {
                       return (
-                        <div
+                        <img
                           key={index}
-                          className="w-32 h-32 cursor-pointer"
-                          onClick={() => handleMediaClick(url)}
-                        >
-                          <img
-                            src={url}
-                            alt={`Before ${pair.description}`}
-                            className="w-full h-full object-cover rounded-md"
-                          />
-                        </div>
+                          src={url}
+                          alt={`Before ${pair.description}`}
+                          className="w-70 h-70 object-cover rounded-md"
+                        />
                       );
                     }
                   })}
                   </div>
                 </div>
-
                 {/* Arrow */}
                 <div className="text-2xl text-gray-500 mx-2 sm:mx-4 flex justify-center items-center">
                   ➜
                 </div>
-
                 {/* After Images */}
                 <div className="flex flex-col items-center w-full sm:w-1/3">
                   <h4 className="text-lg font-medium mb-2">After</h4>
                   <div className="flex flex-wrap gap-2 justify-center">
                   {pair.afterMedia.map((url, index) => {
                     if (isVideo(url)) {
-                      console.log('Video URL:', url);
                       return (
                         <video
                           key={index}
@@ -113,7 +87,6 @@ function BeforeAfter() {
                           width="300"
                           height="300"
                           className="object-cover rounded-md"
-                          onClick={() => handleMediaClick(url)}
                         >
                           <source src={url} type="video/mp4" />
                           Your browser does not support the video tag.
@@ -121,17 +94,12 @@ function BeforeAfter() {
                       );
                     } else {
                       return (
-                        <div
-                            key={index}
-                            className="w-32 h-32 cursor-pointer"
-                            onClick={() => handleMediaClick(url)}
-                          >
-                            <img
-                              src={url}
-                              alt={`After ${pair.description}`}
-                              className="w-full h-full object-cover rounded-md"
-                            />
-                          </div>
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`After ${pair.description}`}
+                          className="w-70 h-70 object-cover rounded-md"
+                        />
                       );
                     }
                   })}
@@ -145,51 +113,10 @@ function BeforeAfter() {
               </div>
             </div>
           ))}
-
-      <div className="text-center mt-8">
-        <button
-          onClick={() => navigate('/gallery')}
-          className="inline-block bg-blue-600 text-white text-lg font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105"
-        >
-          See More
-        </button>
-      </div>
         </div>
       </div>
-
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="relative bg-white p-4 rounded-lg">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-white text-2xl bg-red-500 rounded-full p-2"
-            >
-              ×
-            </button>
-            {isVideo(selectedMedia) ? (
-              <video
-                controls
-                width="600"
-                height="400"
-                className="object-cover"
-                autoPlay
-              >
-                <source src={selectedMedia} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <img
-                src={selectedMedia}
-                alt="Selected media"
-                className="w-full h-auto object-contain"
-              />
-            )}
-          </div>
-        </div>
-      )}
-   
     </section>
   );
 }
 
-export default BeforeAfter;
+export default Gallery;

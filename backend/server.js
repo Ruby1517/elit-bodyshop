@@ -5,6 +5,9 @@ const path = require('path');
 const estimateRoutes = require('./routes/estimates');
 const beforeAfterRoutes = require('./routes/beforeAfter');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin');
+const testimonialRoutes = require('./routes/testimonials');
 
 const app = express();
 const cors = require('cors');
@@ -46,6 +49,9 @@ mongoose.connect(uri, {
 app.use('/api/estimates', estimateRoutes);
 app.use('/api/before-after', beforeAfterRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes)
 
 
 // Serve React app for all routes

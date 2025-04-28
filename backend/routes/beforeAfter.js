@@ -7,13 +7,13 @@ const upload = require('../middleware/upload.js');
 // Upload before and after photos
 router.post('/upload', async(req, res) => {
   try {
-    const { title, description, beforeImages, afterImages } = req.body;
+    const { title, description, beforeMedia, afterMedia } = req.body;
 
     const newEntry = new BeforeAfter({
       title,
       description,
-      beforeImages,
-      afterImages
+      beforeMedia,
+      afterMedia
     });
     await newEntry.save();
     res.status(200).json({ message: 'Saved Successfully' })

@@ -53,7 +53,7 @@ function EstimateForm() {
   };
 
   return (
-    <section id="estimate" className="py-20 px-6 bg-gray-100">
+    <section id="estimate" data-oas="fade-left" className="py-20 px-6 bg-gray-100">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
           Get a Free Estimate

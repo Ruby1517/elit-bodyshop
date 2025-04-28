@@ -25,7 +25,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="py-20 px-6 bg-white">
+    <section id="services" data-aos="fade-right" className="py-20 px-6 bg-white">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
           Our Services

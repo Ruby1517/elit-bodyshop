@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import app  from '../firebaseConfig';
-import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from 'firebase/storage';
 import axios from 'axios';
 
 const Admin = () => {
@@ -39,13 +39,19 @@ const Admin = () => {
 
   const { getRootProps: getRootBeforeProps, getInputProps: getInputBeforeProps } = useDropzone({
     onDrop: onDropBefore,
-    accept: { 'image/*': [] },
+    accept: {
+  'image/*': [],
+  'video/*': []
+},
     multiple: true,
   });
 
   const { getRootProps: getRootAfterProps, getInputProps: getInputAfterProps } = useDropzone({
     onDrop: onDropAfter,
-    accept: { 'image/*': [] },
+    accept: {
+      'image/*': [],
+      'video/*': []
+    },
     multiple: true,
   });
 
@@ -59,27 +65,27 @@ const Admin = () => {
     e.preventDefault();
     setUploading(true);
     setError(null);
-
+  
     try {
       const beforeImageUrls = await Promise.all(beforeImages.map(file => uploadImage(file)));
       const afterImageUrls = await Promise.all(afterImages.map(file => uploadImage(file)));
-
-      console.log("before image url:", beforeImageUrls)
-
+  
+      console.log("before image url:", beforeImageUrls);
+  
       await axios.post('http://localhost:5000/api/before-after/upload', {
         title,
         description,
-        beforeImages: beforeImageUrls,
-        afterImages: afterImageUrls        
+        beforeMedia: beforeImageUrls,
+        afterMedia: afterImageUrls        
       });
-
+  
       alert('Images uploaded successfully!');
       setBeforeImages([]);
       setAfterImages([]);
       setBeforePreviews([]);
       setAfterPreviews([]);
       setDescription('');
-      setTitle('')
+      setTitle('');
     } catch (err) {
       console.error('Upload error:', err);
       setError('Failed to upload images.');
@@ -87,7 +93,7 @@ const Admin = () => {
       setUploading(false);
     }
   };
-
+  
   // Clean up preview URLs when component unmounts or previews change
   useEffect(() => {
     return () => {
@@ -123,7 +129,7 @@ const Admin = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Before Images</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Before Medias</label>
           <div
             {...getRootBeforeProps()}
             className="p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer text-gray-500 hover:border-blue-400"
@@ -141,7 +147,7 @@ const Admin = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">After Images</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">After Medias</label>
           <div
             {...getRootAfterProps()}
             className="p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer text-gray-500 hover:border-blue-400"
