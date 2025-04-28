@@ -88,6 +88,11 @@ import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import app from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
+import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const AdminDashboard = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -100,40 +105,66 @@ const AdminDashboard = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [showTestimonials, setShowTestimonials] = useState(true);  // To toggle between sections
-
-  const storage = getStorage(app);
+  const [notifications, setNotifications] = useState([]);
+  const [pendingEstimates, setPendingEstimates] = useState([]);
   const navigate = useNavigate();
 
-  const generatePreviews = (files, setPreviewFn) => {
-    const previews = files.map(file => ({
-      file,
-      url: URL.createObjectURL(file)
-    }));
-    setPreviewFn(previews);
+  useEffect(() => {
+    fetchPendingEstimates();
+  }, []);
+
+  const fetchPendingEstimates = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/estimates/pending');
+      setPendingEstimates(response.data);
+    } catch (error) {
+      console.error('Error fetching pending estimates', error);
+    }
   };
 
-  // Dropzone hooks
-  const onDropBefore = (acceptedFiles) => {
-    setBeforeImages(prev => [...prev, ...acceptedFiles]);
-    generatePreviews(acceptedFiles, (newPreviews) => setBeforePreviews(prev => [...prev, ...newPreviews]));
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/estimates/${id}/status`, { status: newStatus });
+      fetchPendingEstimates(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating estimate status', error);
+    }
   };
+
+  // useEffect(() => {
+  //   const socket = io('http://localhost:5000');  // your server address
+  //   const notificationSound = new Audio('/notification.mp3');
+
+  //   socket.on('connect', () => {
+  //     console.log('Connected to Socket.IO server');
+  //   });
+
+  //   socket.on('newEstimate', (data) => {
+  //     console.log('New estimate received:', data);
+      
+  //     // Play sound
+  //     notificationSound.play();
+
+  //     // Show popup
+  //     toast.info('New Estimate Request Received!', {
+  //       position: "top-right",
+  //       autoClose: 5000,
+  //       hideProgressBar: false,
+  //       closeOnClick: true,
+  //       pauseOnHover: true,
+  //       draggable: true,
+  //     });
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
   
-  const onDropAfter = (acceptedFiles) => {
-    setAfterImages(prev => [...prev, ...acceptedFiles]);
-    generatePreviews(acceptedFiles, (newPreviews) => setAfterPreviews(prev => [...prev, ...newPreviews]));
-  };
 
-  const { getRootProps: getRootBeforeProps, getInputProps: getInputBeforeProps } = useDropzone({
-    onDrop: onDropBefore,
-    accept: { 'image/*': [], 'video/*': [] },
-    multiple: true,
-  });
-
-  const { getRootProps: getRootAfterProps, getInputProps: getInputAfterProps } = useDropzone({
-    onDrop: onDropAfter,
-    accept: { 'image/*': [], 'video/*': [] },
-    multiple: true,
-  });
+  const handleBeforeAfter = () => {
+    navigate('/admin-beforeAfter')
+  }
 
   // Fetch Testimonials
   const fetchTestimonials = async () => {
@@ -173,45 +204,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const uploadImage = async (file) => {
-    const imageRef = ref(storage, `photos/${Date.now()}_${file.name}`);
-    await uploadBytes(imageRef, file);
-    return await getDownloadURL(imageRef);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setUploading(true);
-    setError(null);
   
-    try {
-      const beforeImageUrls = await Promise.all(beforeImages.map(file => uploadImage(file)));
-      const afterImageUrls = await Promise.all(afterImages.map(file => uploadImage(file)));
-  
-      console.log("before image url:", beforeImageUrls);
-  
-      await axios.post('http://localhost:5000/api/before-after/upload', {
-        title,
-        description,
-        beforeMedia: beforeImageUrls,
-        afterMedia: afterImageUrls        
-      });
-  
-      alert('Images uploaded successfully!');
-      setBeforeImages([]);
-      setAfterImages([]);
-      setBeforePreviews([]);
-      setAfterPreviews([]);
-      setDescription('');
-      setTitle('');
-    } catch (err) {
-      console.error('Upload error:', err);
-      setError('Failed to upload images.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
   useEffect(() => {
     fetchTestimonials();
   }, []);
@@ -219,6 +212,32 @@ const AdminDashboard = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
+
+      {/* {notifications.length > 0 && (
+        <div style={{ background: 'yellow', padding: '10px', marginBottom: '20px' }}>
+          🔔 You have {notifications.length} new estimate request(s)!
+        </div>
+      )} */}
+
+      {/* Show new notifications */}
+      {/* {notifications.map((note, idx) => (
+        <div key={idx} style={{ border: '1px solid black', marginBottom: '10px', padding: '5px' }}>
+          <strong>{note.name}</strong> requested estimate for <strong>{note.vehicle}</strong> at {new Date(note.createdAt).toLocaleTimeString()}
+        </div>
+      ))} */}
+
+    <h2>Pending Estimates ({pendingEstimates.length})</h2>
+
+    {pendingEstimates.map((estimate) => (
+      <div key={estimate._id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+        <p><strong>Name:</strong> {estimate.name}</p>
+        <p><strong>Vehicle:</strong> {estimate.vehicle}</p>
+        <p><strong>Damage:</strong> {estimate.damage}</p>
+    
+        <button onClick={() => handleStatusChange(estimate._id, 'reviewed')}>Mark as Reviewed</button>
+        <button onClick={() => handleStatusChange(estimate._id, 'completed')}>Mark as Completed</button>
+      </div>
+    ))}
       
       {/* Toggle Buttons */}
       <div className="mb-4">
@@ -229,116 +248,16 @@ const AdminDashboard = () => {
           Manage Testimonials
         </button>
         <button
-          onClick={() => setShowTestimonials(false)}
+          onClick={handleBeforeAfter}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Upload Before & After Images
         </button>
       </div>
 
-      {/* Show Testimonials Section */}
-      {showTestimonials ? (
-        <div>
-          <div className="grid gap-4">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial._id} className="p-4 border rounded shadow">
-                <h3 className="text-xl font-semibold">{testimonial.name}</h3>
-                <p className="text-gray-700 mb-4">{testimonial.message}</p>
-                <p>Status: {testimonial.approved ? 'Approved' : 'Pending'}</p>
-                <div className="flex gap-4 mt-4">
-                  {!testimonial.approved && (
-                    <button
-                      onClick={() => approveTestimonial(testimonial._id)}
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                      Approve
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteTestimonial(testimonial._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4">Upload Before & After Image Sets</h2>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Enter title"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <input
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Enter description"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Before Medias</label>
-              <div
-                {...getRootBeforeProps()}
-                className="p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer text-gray-500 hover:border-blue-400"
-              >
-                <input {...getInputBeforeProps({ multiple: true })} />
-                <p>Drag and drop or click to select before images</p>
-              </div>
-              <div className="flex flex-wrap gap-4 mt-2">
-                {beforePreviews.map((preview, index) => (
-                  <div key={index} className="w-24 h-24 border rounded overflow-hidden">
-                    <img src={preview.url} alt={`before-${index}`} className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">After Medias</label>
-              <div
-                {...getRootAfterProps()}
-                className="p-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer text-gray-500 hover:border-blue-400"
-              >
-                <input {...getInputAfterProps({ multiple: true })} />
-                <p>Drag and drop or click to select after images</p>
-              </div>
-              <div className="flex flex-wrap gap-4 mt-2">
-                {afterPreviews.map((preview, index) => (
-                  <div key={index} className="w-24 h-24 border rounded overflow-hidden">
-                    <img src={preview.url} alt={`after-${index}`} className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={uploading}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-            >
-              {uploading ? 'Uploading...' : 'Upload Set'}
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+      
+  </div>  
+  ) 
 };
 
 export default AdminDashboard;

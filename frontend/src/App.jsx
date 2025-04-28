@@ -43,6 +43,7 @@ function App() {
               }
             />
             <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin-beforeAfter" element={<Admin />} />
             <Route path="/register" element={<UserRegister />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/estimate" element={<EstimateForm />} />

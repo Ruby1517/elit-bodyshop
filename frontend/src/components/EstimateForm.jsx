@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import app  from '../firebaseConfig';
+import app from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
 import axios from 'axios';
+import './estimate.css';
 
 function EstimateForm() {
   const [formData, setFormData] = useState({
@@ -19,38 +20,43 @@ function EstimateForm() {
   };
 
   const handleFileChange = (e) => {
-    setImages(prev => [...prev, ...Array.from(e.target.files)])
-  }
-
+    const files = e.target.files;  // Get the files
+    setImages((prev) => {
+      const newImages = [...prev, ...Array.from(files)];
+      return newImages;
+    });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const urls = [];
       for (const file of images) {
-        const imageRef = ref(Storage, `estimate/${Date.now()}_${file.name}`);
-        const snapshot = await uploadBytes(imageRef, file)
+        const imageRef = ref(getStorage(), `estimate/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(imageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
         urls.push(downloadURL);
       }
-
+  
       const payload = {
         ...formData,
-        imageUrl: urls
+        imageUrls: urls
       };
-
+  
       const response = await axios.post('http://localhost:5000/api/estimates', payload);
-      if (response.ok) {
+  
+      if (response.status === 201) {
         setMessage('Estimate request submitted successfully!');
         setFormData({ name: '', email: '', phone: '', vehicle: '', damage: '' });
         setImages([]);
       } else {
         setMessage('Failed to submit estimate. Please try again.');
       }
-     
     } catch (error) {
+      console.error(error);  // Add this to debug and log the error in the console
       setMessage('An error occurred. Please try again later.');
     }
   };
+  
 
   return (
     <section id="estimate" data-oas="fade-left" className="py-20 px-6 bg-gray-100">
@@ -60,21 +66,42 @@ function EstimateForm() {
         </h2>
         <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
           <form onSubmit={handleSubmit} encType="multipart/form-data">
-            {['name', 'email', 'phone', 'vehicle'].map((field) => (
-              <div key={field} className="mb-6">
-                <label className="block text-gray-700 font-medium mb-2 capitalize">
-                  {field === 'vehicle' ? 'Vehicle Make & Model' : field}
-                </label>
-                <input
-                  type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  required={field !== 'phone'}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            ))}
+            {/* Two Inputs in One Row */}
+            <div className="form-row">
+              {['name', 'email'].map((field) => (
+                <div key={field} className="form-group">
+                  <label className="block text-gray-700 font-medium mb-2 capitalize">
+                    {field === 'vehicle' ? 'Vehicle Make & Model' : field}
+                  </label>
+                  <input
+                    type={field === 'email' ? 'email' : 'text'}
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    required={field !== 'phone'}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="form-row">
+              {['phone', 'vehicle'].map((field) => (
+                <div key={field} className="form-group">
+                  <label className="block text-gray-700 font-medium mb-2 capitalize">
+                    {field === 'vehicle' ? 'Vehicle Make & Model' : field}
+                  </label>
+                  <input
+                    type={field === 'phone' ? 'tel' : 'text'}
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    required={field !== 'phone'}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+            </div>
 
             <div className="mb-6">
               <label className="block text-gray-700 font-medium mb-2">Damage Description</label>
@@ -131,15 +158,3 @@ function EstimateForm() {
 }
 
 export default EstimateForm;
-
-
-
-
-
-
-
-
-
-
-
-

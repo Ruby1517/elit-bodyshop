@@ -1,0 +1,23 @@
+/* CSS */
+.form-row {
+    display: flex;
+    gap: 16px; /* Adds space between inputs */
+    margin-bottom: 16px;
+  }
+  
+  .form-group {
+    flex: 1; /* Ensures both inputs take equal width */
+  }
+  
+  input,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  textarea {
+    resize: vertical; /* Allows resizing vertically */
+  }
+  

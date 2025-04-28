@@ -2,6 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const http = require('http');
+
+const { Server } = require('socket.io');
+const cors = require('cors');
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",  // Allow your frontend (or specify URL)
+    methods: ["GET", "POST"]
+  }
+});
+
+// Store io instance inside app
+app.set('io', io);
+
 const estimateRoutes = require('./routes/estimates');
 const beforeAfterRoutes = require('./routes/beforeAfter');
 const authRoutes = require('./routes/auth');
@@ -9,8 +27,14 @@ const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
 const testimonialRoutes = require('./routes/testimonials');
 
-const app = express();
-const cors = require('cors');
+// Example socket connection
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
 
 
 const uri = process.env.MONGODB_URI; 
@@ -45,6 +69,7 @@ mongoose.connect(uri, {
   console.error('MongoDB connection error:', error);
 });
 
+
 // Routes
 app.use('/api/estimates', estimateRoutes);
 app.use('/api/before-after', beforeAfterRoutes);
@@ -52,7 +77,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes)
-
 
 // Serve React app for all routes
 // app.get('*', (req, res) => {
