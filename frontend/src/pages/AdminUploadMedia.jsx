@@ -4,7 +4,7 @@ import app  from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from 'firebase/storage';
 import axios from 'axios';
 
-const Admin = () => {
+const AdminUploadMedia = () => {
   const [beforeImages, setBeforeImages] = useState([]);
   const [afterImages, setAfterImages] = useState([]);
   const [title, setTitle] = useState('');
@@ -190,4 +190,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default AdminUploadMedia;

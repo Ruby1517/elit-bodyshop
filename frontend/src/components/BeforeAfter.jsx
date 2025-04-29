@@ -82,8 +82,8 @@ function BeforeAfter() {
                         <video
                           key={index}
                           controls
-                          width="300"
-                          height="300"
+                          width="600"
+                          height="400"
                           className="object-cover rounded-md"
                           onClick={() => handleMediaClick(url)}
                         >
@@ -125,8 +125,8 @@ function BeforeAfter() {
                         <video
                           key={index}
                           controls
-                          width="300"
-                          height="300"
+                          width="600"
+                          height="400"
                           className="object-cover rounded-md"
                           onClick={() => handleMediaClick(url)}
                         >

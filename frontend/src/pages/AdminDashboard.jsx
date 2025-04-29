@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Admin from './Admin';
+import AdminUploadMedia from './AdminUploadMedia';
 import PendingEstimate from './PendingEstimate';
+import CompletedEstimate from './CompletedEstimate'
 
 const AdminDashboard = () => {
   const [activePage, setActivePage] = useState('pending');
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
         <h2 className="text-xl font-bold mb-6">Admin Menu</h2>
         <button onClick={() => setActivePage('beforeAfter')} className="mb-2 p-2 hover:bg-gray-700 rounded">Upload Before & After</button>
         <button onClick={() => setActivePage('estimates')} className="mb-2 p-2 hover:bg-gray-700 rounded">Pending Estimates</button>
+        <button onClick={() => setActivePage('completed')} className="mb-2 p-2 hover:bg-gray-700 rounded">Completed Estimates</button>
         <button onClick={() => setActivePage('testimonials')} className="mb-2 p-2 hover:bg-gray-700 rounded">Manage Testimonials</button>
         
       </div>
@@ -76,8 +78,9 @@ const AdminDashboard = () => {
           )}
 
           {activePage === 'estimates' && <PendingEstimate />}
+          {activePage === 'completed' && <CompletedEstimate />}
 
-          {activePage === 'beforeAfter' &&  <Admin />}
+          {activePage === 'beforeAfter' &&  <AdminUploadMedia />}
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import BeforeAfter from './components/BeforeAfter';
 import EstimateForm from './components/EstimateForm';
 import Advice from './components/Advice';
 import Footer from './components/Footer';
-import Admin from './pages/Admin';
 import Services from './components/Services';
 import Testimonials from './components/Testimonials';
 import ScrollToTop from './components/ScrollToTop';
@@ -15,6 +14,7 @@ import AdminLogin from './pages/AdminLogin';
 import UserRegister from './pages/UserRegister'
 import AdminDashboard from './pages/AdminDashboard';
 import Gallery from './components/Gallery';
+import AdminUploadMedia from './pages/AdminUploadMedia'
 
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
               }
             />
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin-beforeAfter" element={<Admin />} />
+            <Route path="/admin-beforeAfter" element={<AdminUploadMedia />} />
             <Route path="/register" element={<UserRegister />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/estimate" element={<EstimateForm />} />
