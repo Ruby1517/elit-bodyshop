@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const BeforeAfter = require('../models/BeforeAfter.js');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const verifyAdminToken = require('../middleware/verifyAdminToken.js')
 const upload = require('../middleware/upload.js');
 
 // Upload before and after photos
-router.post('/upload', async(req, res) => {
+router.post('/upload', verifyAdminToken, async(req, res) => {
   try {
     const { title, description, beforeMedia, afterMedia } = req.body;
 

@@ -70,14 +70,28 @@ const Admin = () => {
       const beforeImageUrls = await Promise.all(beforeImages.map(file => uploadImage(file)));
       const afterImageUrls = await Promise.all(afterImages.map(file => uploadImage(file)));
   
-      console.log("before image url:", beforeImageUrls);
+      const token = localStorage.getItem('adminToken');
+
+      // Make sure the token is available
+      if (!token) {
+        console.error('No token found. Please log in.');
+        return;
+      }
   
-      await axios.post('http://localhost:5000/api/before-after/upload', {
+      await axios.post(
+        'http://localhost:5000/api/before-after/upload', 
+        {
         title,
         description,
         beforeMedia: beforeImageUrls,
         afterMedia: afterImageUrls        
-      });
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}` // Include the token in the Authorization header
+        }
+      }
+    );
   
       alert('Images uploaded successfully!');
       setBeforeImages([]);

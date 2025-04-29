@@ -1,0 +1,23 @@
+.pagination {
+    display: flex;
+    gap: 10px; /* Adds space between the page buttons */
+  }
+  
+  .pagination-button {
+    padding: 8px 16px; /* You can adjust padding to make buttons look better */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.3s;
+  }
+  
+  .pagination-button:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+  
+  .pagination-button:hover {
+    background-color: #f0f0f0;
+  }
+  

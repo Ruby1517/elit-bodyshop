@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReactPlayer from 'react-player';
+
 
 function BeforeAfter() {
   const [imagePairs, setImagePairs] = useState([]);
@@ -8,6 +8,9 @@ function BeforeAfter() {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(null); // Track index of selected image/video
+  const [zoomLevel, setZoomLevel] = useState(1);
+
 
   useEffect(() => {
     const fetchImagePairs = async () => {
@@ -39,6 +42,19 @@ function BeforeAfter() {
   const closeModal = () => {
     setModalOpen(false);
     setSelectedMedia(null);
+    setSelectedMediaIndex(null);
+  };
+
+  const handleNext = () => {
+    const nextIndex = (selectedMediaIndex + 1) % imagePairs.length;
+    setSelectedMedia(imagePairs[nextIndex].beforeMedia[0]); // Or change this to the next media URL
+    setSelectedMediaIndex(nextIndex);
+  };
+
+  const handlePrevious = () => {
+    const prevIndex = (selectedMediaIndex - 1 + imagePairs.length) % imagePairs.length;
+    setSelectedMedia(imagePairs[prevIndex].beforeMedia[0]); // Or change this to the previous media URL
+    setSelectedMediaIndex(prevIndex);
   };
 
   return (
@@ -79,7 +95,7 @@ function BeforeAfter() {
                       return (
                         <div
                           key={index}
-                          className="w-32 h-32 cursor-pointer"
+                          className="w-70 h-70 cursor-pointer"
                           onClick={() => handleMediaClick(url)}
                         >
                           <img
@@ -105,7 +121,6 @@ function BeforeAfter() {
                   <div className="flex flex-wrap gap-2 justify-center">
                   {pair.afterMedia.map((url, index) => {
                     if (isVideo(url)) {
-                      console.log('Video URL:', url);
                       return (
                         <video
                           key={index}
@@ -123,7 +138,7 @@ function BeforeAfter() {
                       return (
                         <div
                             key={index}
-                            className="w-32 h-32 cursor-pointer"
+                            className="w-70 h-70 cursor-pointer"
                             onClick={() => handleMediaClick(url)}
                           >
                             <img
@@ -182,11 +197,21 @@ function BeforeAfter() {
                 src={selectedMedia}
                 alt="Selected media"
                 className="w-full h-auto object-contain"
+                style={{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s ease' }}
+                onWheel={(e) => {
+                  if (e.deltaY > 0 && zoomLevel > 0.5) {
+                    setZoomLevel(zoomLevel - 0.1); // Zoom out
+                  } else if (e.deltaY < 0 && zoomLevel < 3) {
+                    setZoomLevel(zoomLevel + 0.1); // Zoom in
+                  }
+                }}
               />
             )}
           </div>
         </div>
       )}
+
+      
    
     </section>
   );

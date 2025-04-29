@@ -49,8 +49,8 @@ function Gallery() {
                         <video
                           key={index}
                           controls
-                          width="300"
-                          height="300"
+                          width="400"
+                          height="400"
                           className="object-cover rounded-md"
                         >
                           <source src={url} type="video/mp4" />

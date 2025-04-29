@@ -38,14 +38,6 @@ function Home() {
           >
             Get a Free Estimate
           </button>
-          {/* <a 
-            href="https://search.google.com/local/writereview?placeid=g/11cm04z7wr" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-transform transform hover:scale-105"
-          >
-            Leave Us a Review on Google
-          </a> */}
         </div>
       </section>
 

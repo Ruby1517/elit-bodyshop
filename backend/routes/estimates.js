@@ -32,13 +32,26 @@ router.post('/', async (req, res) => {
 
 router.get('/pending', async (req, res) => {
   try {
-    const pendingEstimates = await Estimate.find({ status: 'pending' });
-    res.json(pendingEstimates);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Fetch paginated data
+    const [estimates, totalCount] = await Promise.all([
+      Estimate.find({ status: 'pending' }).skip(skip).limit(limit),
+      Estimate.countDocuments({ status: 'pending' }),
+    ]);
+
+    res.json({
+      estimates,
+      totalCount,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching pending estimates' });
   }
 });
+
 
 
 

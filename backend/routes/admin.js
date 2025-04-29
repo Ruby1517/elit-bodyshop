@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
+const verifyAdminToken = require('../middleware/verifyAdminToken')
 
 // Admin Login
 router.post('/login', async (req, res) => {
@@ -26,6 +27,31 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({ token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Route to get admin user data
+router.get('/admin', verifyAdminToken, async (req, res) => {
+  try {
+    // Assuming you're storing user data in a database model called User
+    // Use req.admin to get the admin's data if needed (i.e., the decoded JWT)
+    
+    const adminUser = await User.findById(req.admin.id); // Find admin by ID from JWT token payload
+
+    if (!adminUser) {
+      return res.status(404).json({ message: 'Admin user not found' });
+    }
+
+    // Respond with the admin user data
+    res.json({
+      id: adminUser._id,
+      email: adminUser.email,
+      name: adminUser.name,
+      role: adminUser.role,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

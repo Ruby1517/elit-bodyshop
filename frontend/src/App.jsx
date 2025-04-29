@@ -7,14 +7,14 @@ import BeforeAfter from './components/BeforeAfter';
 import EstimateForm from './components/EstimateForm';
 import Advice from './components/Advice';
 import Footer from './components/Footer';
-import Admin from './components/Admin';
+import Admin from './pages/Admin';
 import Services from './components/Services';
 import Testimonials from './components/Testimonials';
 import ScrollToTop from './components/ScrollToTop';
 import AdminLogin from './pages/AdminLogin';
 import UserRegister from './pages/UserRegister'
 import AdminDashboard from './pages/AdminDashboard';
-import Gallery from './pages/Gallery';
+import Gallery from './components/Gallery';
 
 
 function App() {

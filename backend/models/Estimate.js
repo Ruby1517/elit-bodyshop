@@ -35,7 +35,7 @@ const estimateSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'reviewed', 'completed'],
+    enum: ['pending', 'completed'],
     default: 'pending'
   }
 });
